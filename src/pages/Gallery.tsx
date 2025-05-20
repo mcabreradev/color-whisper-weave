@@ -1,12 +1,12 @@
 
 import React, { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import ColorPalette, { PaletteData } from "@/components/ColorPalette";
-import ComponentPreview from "@/components/ComponentPreview";
+import ColorPalette, { PaletteData } from "@/components/color-palette";
+import ComponentPreview from "@/components/component-preview";
 
 const Gallery = () => {
   const [selectedPalette, setSelectedPalette] = useState<PaletteData | null>(null);

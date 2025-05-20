@@ -1,16 +1,16 @@
 
-import { Color, PaletteData } from "@/components/ColorPalette";
+import { Color, PaletteData } from "@/components/color-palette";
 
 // In a real implementation, this would be an API call or use a server-side service
 // For the demo, we'll use mock data with a fake delay
 export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 2000));
-  
+
   // Generate a pseudo-random palette based on the URL string to simulate different results
   const seed = Array.from(url).reduce((a, c) => a + c.charCodeAt(0), 0);
   const rand = (n: number) => ((seed * (n + 1)) % 255).toString(16).padStart(2, '0');
-  
+
   // Select one of several pre-defined palettes for the demo
   const palettes = [
     // Blue-focused palette
@@ -41,11 +41,11 @@ export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
       { name: "neutral", value: `#${rand(23)}${rand(24)}${rand(25)}` },
     ],
   ];
-  
+
   // Choose a palette based on the URL
   const paletteIndex = seed % palettes.length;
   const colors = palettes[paletteIndex];
-  
+
   return {
     url,
     colors,

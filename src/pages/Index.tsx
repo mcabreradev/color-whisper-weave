@@ -1,12 +1,12 @@
 
 import React, { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import UrlForm from "@/components/UrlForm";
-import ColorPalette, { PaletteData } from "@/components/ColorPalette";
-import ComponentPreview from "@/components/ComponentPreview";
-import ExampleGallery from "@/components/ExampleGallery";
-import { extractColorsFromUrl } from "@/services/colorExtractor";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import UrlForm from "@/components/url-form";
+import ColorPalette, { PaletteData } from "@/components/color-palette";
+import ComponentPreview from "@/components/component-preview";
+import ExampleGallery from "@/components/example-gallery";
+import { extractColorsFromUrl } from "@/services/color-extractor";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -46,7 +46,7 @@ const Index = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <main className="flex-grow">
         <section className="py-16 md:py-24">
           <div className="container">
@@ -55,32 +55,32 @@ const Index = () => {
                 Extract Color Palettes from Any Website
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Input a URL, and we'll analyze the website to extract its color palette. 
+                Input a URL, and we'll analyze the website to extract its color palette.
                 Export to Tailwind, CSS variables, or JSON format.
               </p>
               <div className="max-w-2xl mx-auto">
                 <UrlForm onSubmit={handleUrlSubmit} isLoading={isLoading} />
               </div>
             </div>
-            
+
             {isLoading && (
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                 <p className="mt-4 text-muted-foreground">Extracting colors from website...</p>
               </div>
             )}
-            
+
             {palette && (
               <div className="max-w-4xl mx-auto fade-in">
                 <ColorPalette palette={palette} />
                 <ComponentPreview palette={palette} />
               </div>
             )}
-            
+
             {!isLoading && !palette && (
               <div className="max-w-5xl mx-auto">
                 <ExampleGallery onSelectExample={handleExampleSelect} />
-                
+
                 <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="text-center p-6 rounded-xl border bg-card">
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
@@ -93,7 +93,7 @@ const Index = () => {
                       Enter any website URL and extract its color palette automatically
                     </p>
                   </div>
-                  
+
                   <div className="text-center p-6 rounded-xl border bg-card">
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -105,7 +105,7 @@ const Index = () => {
                       Export to Tailwind CSS, CSS variables, or JSON with one click
                     </p>
                   </div>
-                  
+
                   <div className="text-center p-6 rounded-xl border bg-card">
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -123,7 +123,7 @@ const Index = () => {
           </div>
         </section>
       </main>
-      
+
       <Footer />
     </div>
   );

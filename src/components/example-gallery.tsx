@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { PaletteData } from "./ColorPalette";
+import { PaletteData } from "./color-palette";
 
 interface ExampleGalleryProps {
   onSelectExample: (palette: PaletteData) => void;
@@ -59,9 +59,9 @@ const ExampleGallery: React.FC<ExampleGalleryProps> = ({ onSelectExample }) => {
           <div key={index} className="rounded-xl overflow-hidden border bg-card shadow-sm">
             <div className="h-32 flex">
               {example.colors.map((color, i) => (
-                <div 
-                  key={i} 
-                  className="h-full flex-1" 
+                <div
+                  key={i}
+                  className="h-full flex-1"
                   style={{ backgroundColor: color.value }}
                 />
               ))}
@@ -71,9 +71,9 @@ const ExampleGallery: React.FC<ExampleGalleryProps> = ({ onSelectExample }) => {
               <p className="text-sm text-muted-foreground mb-3">
                 {example.colors.length} colors
               </p>
-              <Button 
-                onClick={() => onSelectExample(example)} 
-                variant="outline" 
+              <Button
+                onClick={() => onSelectExample(example)}
+                variant="outline"
                 className="w-full"
               >
                 Use This Palette
