@@ -7,127 +7,95 @@ function isValidColor(color: string): boolean {
 }
 
 function normalizeColorName(name: string): string {
-  // Map common color property names to our palette names
-  const nameMap: { [key: string]: string } = {
-    'primary': ['primary', 'main', 'brand'].join('|'),
-    'secondary': ['secondary', 'accent-1'].join('|'),
-    'accent': ['accent', 'highlight', 'accent-2'].join('|'),
-    'background': ['background', 'bg', 'surface'].join('|'),
-    'text': ['text', 'font', 'foreground', 'fg'].join('|'),
-    'neutral': ['neutral', 'gray', 'grey'].join('|')
-  };
+  // Remove -- prefix and -foreground suffix
+  const baseName = name.replace(/^--/, '').replace(/-foreground$/, '');
 
-  for (const [key, patterns] of Object.entries(nameMap)) {
-    if (new RegExp(patterns, 'i').test(name)) {
-      return key;
-    }
+  // Map shadcn/ui variables to our color names
+  switch (baseName) {
+    case 'primary':
+    case 'secondary':
+    case 'accent':
+      return baseName;
+    case 'background':
+    case 'card':
+    case 'popover':
+      return 'background';
+    case 'foreground':
+      return 'text';
+    case 'muted':
+    case 'border':
+    case 'input':
+    case 'ring':
+      return 'neutral';
+    default:
+      return baseName;
   }
-  return name;
 }
 
 function extractColorsFromStyles(styles: string[]): Color[] {
   const colors = new Map<string, string>();
-  const colorRegex = /(#[a-f0-9]{3,8}|rgb\([^)]+\)|rgba\([^)]+\)|hsl\([^)]+\)|hsla\([^)]+\))/gi;
-  const variableRegex = /--([^:]+):\s*(#[a-f0-9]{3,8}|rgb[a-z]?\([^)]+\)|hsl[a-z]?\([^)]+\))/gi;
+  const cssVarRegex = /--([^:]+)\s*:\s*((?:hsl|rgb)a?\([^)]+\)|#[a-f0-9]{3,8})/gi;
 
-  // First try to find CSS variables
   for (const style of styles) {
     let match;
-    while ((match = variableRegex.exec(style)) !== null) {
-      const name = match[1].trim();
-      const value = match[2].trim();
+    while ((match = cssVarRegex.exec(style)) !== null) {
+      const [, name, value] = match;
       if (isValidColor(value)) {
-        const normalizedName = normalizeColorName(name);
-        colors.set(normalizedName, value);
+        const normalizedName = normalizeColorName(name.trim());
+        if (!colors.has(normalizedName)) {
+          colors.set(normalizedName, value.trim());
+        }
       }
     }
   }
 
-  // If we don't have enough colors, look for any color values with context
+  // If we don't have enough colors, look for regular color declarations
   if (colors.size < 6) {
+    const colorDeclRegex = /([a-z-]+)(?:\s*:\s*|\s+)(#[a-f0-9]{3,8}|(?:hsl|rgb)a?\([^)]+\))/gi;
     for (const style of styles) {
       let match;
-      const styleText = style.toLowerCase();
-      while ((match = colorRegex.exec(style)) !== null) {
-        const value = match[1].trim();
+      while ((match = colorDeclRegex.exec(style)) !== null) {
+        const [, name, value] = match;
         if (isValidColor(value)) {
-          // Look at context before the color
-          const beforeContext = style.substring(Math.max(0, match.index - 30), match.index).toLowerCase();
-          let name;
-
-          if (beforeContext.includes('primary') || beforeContext.includes('brand')) {
-            name = 'primary';
-          } else if (beforeContext.includes('secondary')) {
-            name = 'secondary';
-          } else if (beforeContext.includes('accent') || beforeContext.includes('highlight')) {
-            name = 'accent';
-          } else if (beforeContext.includes('background') || beforeContext.includes('bg')) {
-            name = 'background';
-          } else if (beforeContext.includes('text') || beforeContext.includes('font')) {
-            name = 'text';
-          } else if (beforeContext.includes('neutral') || beforeContext.includes('gray') || beforeContext.includes('grey')) {
-            name = 'neutral';
-          }
-
-          if (name && !colors.has(name)) {
-            colors.set(name, value);
+          const normalizedName = normalizeColorName(name.trim());
+          if (!colors.has(normalizedName)) {
+            colors.set(normalizedName, value.trim());
           }
         }
       }
-
-      // Try to extract background-color and color properties
-      const bgColorMatch = style.match(/background(?:-color)?:\s*([^;}"']+)/i);
-      const textColorMatch = style.match(/(?:^|[^-])color:\s*([^;}"']+)/i);
-
-      if (bgColorMatch && isValidColor(bgColorMatch[1]) && !colors.has('background')) {
-        colors.set('background', bgColorMatch[1].trim());
-      }
-      if (textColorMatch && isValidColor(textColorMatch[1]) && !colors.has('text')) {
-        colors.set('text', textColorMatch[1].trim());
-      }
     }
   }
 
-  // Convert to Color array and handle missing colors
-  const colorList: Color[] = [];
+  // Ensure we have all required colors
   const requiredColors = ['primary', 'secondary', 'accent', 'background', 'text', 'neutral'];
+  const result: Color[] = [];
 
-  // Ensure we have background and text colors
-  if (!colors.has('background')) colors.set('background', '#ffffff');
-  if (!colors.has('text')) colors.set('text', '#000000');
+  // Default colors if not found
+  const defaultColors = new Map([
+    ['background', '#ffffff'],
+    ['text', '#000000'],
+    ['primary', '#3b82f6'],
+    ['secondary', '#6b7280'],
+    ['accent', '#f59e0b'],
+    ['neutral', '#9ca3af']
+  ]);
 
-  // Generate missing colors with good contrast
   for (const name of requiredColors) {
-    if (colors.has(name)) {
-      colorList.push({ name, value: colors.get(name)! });
-    } else {
-      // For missing colors, generate them based on existing ones
-      const baseColor = colors.get('primary') || '#000000';
-      const s = new Option().style;
-      s.color = baseColor;
-      const value = name === 'background' ? '#ffffff' :
-                   name === 'text' ? '#000000' :
-                   s.color;
-      colorList.push({ name, value });
-    }
+    result.push({
+      name,
+      value: colors.get(name) || defaultColors.get(name)!
+    });
   }
 
-  return colorList;
+  return result;
 }
 
 export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
   try {
-    // Validate URL
-    const parsedUrl = new URL(url);
-    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      throw new Error('Only HTTP and HTTPS URLs are supported');
-    }
-
-    // Attempt to fetch with CORS mode
     const response = await fetch(url, {
       mode: 'cors',
       headers: {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       }
     });
 
@@ -136,21 +104,20 @@ export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
     }
 
     const html = await response.text();
-
-    // Extract all <style> tags content
-    const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
     const styleSheets: string[] = [];
-    let styleMatch;
-    while ((styleMatch = styleRegex.exec(html)) !== null) {
-      styleSheets.push(styleMatch[1]);
+
+    // Extract <style> tags content
+    const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+    let match;
+    while ((match = styleRegex.exec(html)) !== null) {
+      styleSheets.push(match[1]);
     }
 
-    // Extract all <link rel="stylesheet"> contents
+    // Extract and fetch external stylesheets
     const linkRegex = /<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/gi;
-    let linkMatch;
-    while ((linkMatch = linkRegex.exec(html)) !== null) {
+    while ((match = linkRegex.exec(html)) !== null) {
       try {
-        const cssUrl = new URL(linkMatch[1], url).toString();
+        const cssUrl = new URL(match[1], url).toString();
         const cssResponse = await fetch(cssUrl, { mode: 'cors' });
         if (cssResponse.ok) {
           const cssText = await cssResponse.text();
@@ -161,31 +128,8 @@ export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
       }
     }
 
-    // Add any inline styles from elements
-    const inlineStyleRegex = /style="[^"]*color[^"]*"/gi;
-    const inlineStyles = html.match(inlineStyleRegex) || [];
-    styleSheets.push(...inlineStyles);
-
-    // Try to extract colors from all collected styles
+    // Extract colors from all collected styles
     const colors = extractColorsFromStyles(styleSheets);
-
-    if (!colors || colors.length === 0) {
-      // Fallback to default theme colors
-      const colors = [
-        { name: 'primary', value: '#3b82f6' },    // Blue
-        { name: 'secondary', value: '#6b7280' },  // Gray
-        { name: 'accent', value: '#f59e0b' },     // Amber
-        { name: 'background', value: '#ffffff' },  // White
-        { name: 'text', value: '#111827' },       // Dark Gray
-        { name: 'neutral', value: '#9ca3af' }     // Medium Gray
-      ];
-
-      return {
-        url,
-        colors,
-        timestamp: new Date()
-      };
-    }
 
     return {
       url,
@@ -193,7 +137,9 @@ export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
       timestamp: new Date()
     };
   } catch (e) {
-    console.error('Failed to fetch or parse URL:', e);
+    console.error('Failed to extract colors:', e);
     throw new Error('Failed to extract colors from URL');
   }
 }
+
+
