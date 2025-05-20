@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -9,9 +8,11 @@ import ColorPalette, { PaletteData } from "@/components/color-palette";
 import ComponentPreview from "@/components/component-preview";
 
 const Gallery = () => {
-  const [selectedPalette, setSelectedPalette] = useState<PaletteData | null>(null);
+  const [selectedPalette, setSelectedPalette] = useState<PaletteData | null>(
+    null,
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const palettes: PaletteData[] = [
     {
       url: "github.com",
@@ -86,35 +87,37 @@ const Gallery = () => {
       timestamp: new Date(),
     },
   ];
-  
-  const filteredPalettes = palettes.filter(palette => 
-    palette.url.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const filteredPalettes = palettes.filter((palette) =>
+    palette.url.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  
+
   const handlePaletteSelect = (palette: PaletteData) => {
     setSelectedPalette(palette);
     // Scroll to the top smoothly when selecting a palette
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      
+
       <main className="flex-grow">
         <div className="container py-16">
-          <h1 className="font-bold mb-6 gradient-text">Color Palette Gallery</h1>
+          <h1 className="font-bold mb-6 gradient-text">
+            Color Palette Gallery
+          </h1>
           <p className="text-muted-foreground mb-8 max-w-3xl">
-            Browse our collection of pre-extracted color palettes from popular websites. 
-            Select any palette to view details and component previews.
+            Browse our collection of pre-extracted color palettes from popular
+            websites. Select any palette to view details and component previews.
           </p>
-          
+
           {selectedPalette && (
             <div className="mb-12">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-medium">Selected Palette</h2>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setSelectedPalette(null)}
                 >
                   Close Preview
@@ -124,10 +127,10 @@ const Gallery = () => {
               <ComponentPreview palette={selectedPalette} />
             </div>
           )}
-          
+
           <div className="mb-8 max-w-md">
             <Label htmlFor="search">Search Palettes</Label>
-            <Input 
+            <Input
               id="search"
               type="text"
               placeholder="Search by website name..."
@@ -136,19 +139,19 @@ const Gallery = () => {
               className="mt-2"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {filteredPalettes.map((palette, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="rounded-xl overflow-hidden border bg-card shadow-sm hover:shadow-md transition-shadow"
                 onClick={() => handlePaletteSelect(palette)}
               >
                 <div className="h-32 flex">
                   {palette.colors.map((color, i) => (
-                    <div 
-                      key={i} 
-                      className="h-full flex-1" 
+                    <div
+                      key={i}
+                      className="h-full flex-1"
                       style={{ backgroundColor: color.value }}
                     />
                   ))}
@@ -165,15 +168,17 @@ const Gallery = () => {
               </div>
             ))}
           </div>
-          
+
           {filteredPalettes.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-xl text-muted-foreground">No palettes found matching '{searchTerm}'</p>
+              <p className="text-xl text-muted-foreground">
+                No palettes found matching '{searchTerm}'
+              </p>
             </div>
           )}
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

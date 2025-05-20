@@ -1,4 +1,3 @@
-
 import React from "react";
 
 const Footer: React.FC = () => {
@@ -9,13 +8,22 @@ const Footer: React.FC = () => {
           © {new Date().getFullYear()} Palette Picker. All rights reserved.
         </p>
         <div className="flex items-center gap-4">
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a
+            href="#"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Terms
           </a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a
+            href="#"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Privacy
           </a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a
+            href="#"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Contact
           </a>
         </div>

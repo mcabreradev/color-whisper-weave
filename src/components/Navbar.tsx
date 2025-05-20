@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -9,14 +8,22 @@ const Navbar: React.FC = () => {
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary via-accent to-secondary"></div>
           <Link to="/" className="flex items-center gap-2">
-            <span className="font-bold text-xl md:text-2xl gradient-text">Palette Picker</span>
+            <span className="font-bold text-xl md:text-2xl gradient-text">
+              Palette Picker
+            </span>
           </Link>
         </div>
         <div className="flex items-center gap-4">
-          <Link to="/gallery" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/gallery"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             Gallery
           </Link>
-          <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/about"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             About
           </Link>
         </div>

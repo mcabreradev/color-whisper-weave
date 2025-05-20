@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -40,15 +39,18 @@ const ColorPalette: React.FC<ColorPaletteProps> = ({ palette }) => {
           description: "Could not copy to clipboard",
           variant: "destructive",
         });
-      }
+      },
     );
   };
 
   const generateTailwindConfig = () => {
-    const colorConfig = palette.colors.reduce((acc, color) => {
-      acc[color.name] = color.value;
-      return acc;
-    }, {} as Record<string, string>);
+    const colorConfig = palette.colors.reduce(
+      (acc, color) => {
+        acc[color.name] = color.value;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
     return `// tailwind.config.js
 module.exports = {
@@ -70,14 +72,17 @@ ${palette.colors.map((color) => `  --color-${color.name}: ${color.value};`).join
     return JSON.stringify(
       {
         source: palette.url,
-        colors: palette.colors.reduce((acc, color) => {
-          acc[color.name] = color.value;
-          return acc;
-        }, {} as Record<string, string>),
-        timestamp: palette.timestamp.toISOString()
+        colors: palette.colors.reduce(
+          (acc, color) => {
+            acc[color.name] = color.value;
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+        timestamp: palette.timestamp.toISOString(),
       },
       null,
-      2
+      2,
     );
   };
 
@@ -85,7 +90,8 @@ ${palette.colors.map((color) => `  --color-${color.name}: ${color.value};`).join
     <div className="mt-8 w-full">
       <h2 className="font-bold text-2xl mb-4">Extracted Color Palette</h2>
       <p className="text-muted-foreground mb-6">
-        From URL: <span className="font-medium text-foreground">{palette.url}</span>
+        From URL:{" "}
+        <span className="font-medium text-foreground">{palette.url}</span>
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
@@ -93,11 +99,13 @@ ${palette.colors.map((color) => `  --color-${color.name}: ${color.value};`).join
           <div
             key={color.name}
             className="color-card bg-card"
-            onClick={() => copyToClipboard(color.value, `Copied ${color.value}`)}
+            onClick={() =>
+              copyToClipboard(color.value, `Copied ${color.value}`)
+            }
           >
             <div className="flex items-center gap-3">
-              <div 
-                className="color-swatch" 
+              <div
+                className="color-swatch"
                 style={{ backgroundColor: color.value }}
               ></div>
               <div>
@@ -126,7 +134,12 @@ ${palette.colors.map((color) => `  --color-${color.name}: ${color.value};`).join
             variant="secondary"
             size="sm"
             className="absolute top-3 right-3"
-            onClick={() => copyToClipboard(generateTailwindConfig(), "Tailwind config copied to clipboard")}
+            onClick={() =>
+              copyToClipboard(
+                generateTailwindConfig(),
+                "Tailwind config copied to clipboard",
+              )
+            }
           >
             Copy
           </Button>
@@ -139,7 +152,12 @@ ${palette.colors.map((color) => `  --color-${color.name}: ${color.value};`).join
             variant="secondary"
             size="sm"
             className="absolute top-3 right-3"
-            onClick={() => copyToClipboard(generateCssVariables(), "CSS variables copied to clipboard")}
+            onClick={() =>
+              copyToClipboard(
+                generateCssVariables(),
+                "CSS variables copied to clipboard",
+              )
+            }
           >
             Copy
           </Button>
@@ -152,7 +170,12 @@ ${palette.colors.map((color) => `  --color-${color.name}: ${color.value};`).join
             variant="secondary"
             size="sm"
             className="absolute top-3 right-3"
-            onClick={() => copyToClipboard(generateJsonFormat(), "JSON format copied to clipboard")}
+            onClick={() =>
+              copyToClipboard(
+                generateJsonFormat(),
+                "JSON format copied to clipboard",
+              )
+            }
           >
             Copy
           </Button>

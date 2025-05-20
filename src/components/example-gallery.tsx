@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { PaletteData } from "./color-palette";
@@ -56,7 +55,10 @@ const ExampleGallery: React.FC<ExampleGalleryProps> = ({ onSelectExample }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {examples.map((example, index) => (
-          <div key={index} className="rounded-xl overflow-hidden border bg-card shadow-sm">
+          <div
+            key={index}
+            className="rounded-xl overflow-hidden border bg-card shadow-sm"
+          >
             <div className="h-32 flex">
               {example.colors.map((color, i) => (
                 <div
@@ -67,7 +69,9 @@ const ExampleGallery: React.FC<ExampleGalleryProps> = ({ onSelectExample }) => {
               ))}
             </div>
             <div className="p-4">
-              <h3 className="font-medium text-lg mb-1">{example.url.replace('example.com/', '')}</h3>
+              <h3 className="font-medium text-lg mb-1">
+                {example.url.replace("example.com/", "")}
+              </h3>
               <p className="text-sm text-muted-foreground mb-3">
                 {example.colors.length} colors
               </p>
