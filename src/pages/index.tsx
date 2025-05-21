@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import UrlForm from "@/components/url-form";
-import ColorPalette, { PaletteData } from "@/components/color-palette";
-import ComponentPreview from "@/components/component-preview";
-import ExampleGallery from "@/components/example-gallery";
+import Navbar from "@/components/navbar.tsx";
+import Footer from "@/components/footer.tsx";
+import UrlForm from "@/components/url-form.tsx";
+import ColorPalette, { PaletteData } from "@/components/color-palette.tsx";
+import ComponentPreview from "@/components/component-preview.tsx";
+import ExampleGallery from "@/components/example-gallery.tsx";
 import { extractColorsFromUrl } from "@/services/color-extractor";
 import { useToast } from "@/hooks/use-toast";
 
