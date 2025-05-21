@@ -1,5 +1,76 @@
 import { Color, PaletteData } from "@/components/color-palette";
 
+interface ColorFormats {
+  hex: string;
+  rgb: string;
+  hsl: string;
+  oklch: string;
+}
+
+function parseColor(color: string): ColorFormats {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+
+  // Convert to RGB first
+  ctx.fillStyle = color;
+  const rgbColor = ctx.fillStyle;
+
+  // Create a temporary div to use for conversions
+  const div = document.createElement('div');
+  div.style.color = rgbColor;
+
+  // Get RGB values
+  const rgbMatch = rgbColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+  if (!rgbMatch) {
+    throw new Error('Invalid color format');
+  }
+
+  const r = parseInt(rgbMatch[1], 16);
+  const g = parseInt(rgbMatch[2], 16);
+  const b = parseInt(rgbMatch[3], 16);
+
+  // Convert to HSL
+  const max = Math.max(r, g, b) / 255;
+  const min = Math.min(r, g, b) / 255;
+  const l = (max + min) / 2;
+
+  let h, s;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r / 255:
+        h = ((g - b) / 255) / d + (g < b ? 6 : 0);
+        break;
+      case g / 255:
+        h = ((b - r) / 255) / d + 2;
+        break;
+      default:
+        h = ((r - g) / 255) / d + 4;
+    }
+    h *= 60;
+  }
+
+  // Convert to OKLCH (approximation)
+  // Note: This is a simplified conversion, for accurate OKLCH you'd need a color space library
+  const l_oklch = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+  const c = Math.sqrt(
+    Math.pow(0.2126729 * r + 0.7151522 * g + 0.0721750 * b, 2) +
+    Math.pow(0.2126729 * r - 0.0721750 * b, 2)
+  );
+
+  return {
+    hex: rgbColor,
+    rgb: `rgb(${r}, ${g}, ${b})`,
+    hsl: `hsl(${Math.round(h)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`,
+    oklch: `oklch(${(l_oklch/255).toFixed(2)} ${(c/255).toFixed(2)} ${Math.round(h)})`
+  };
+}
+
 function isValidColor(color: string): boolean {
   const s = new Option().style;
   s.color = color;
@@ -33,7 +104,7 @@ function normalizeColorName(name: string): string {
 }
 
 function extractColorsFromStyles(styles: string[]): Color[] | null {
-  const colors = new Map<string, string>();
+  const colors = new Map<string, ColorFormats>();
   const cssVarRegex =
     /--([^:]+)\s*:\s*((?:hsl|rgb)a?\([^)]+\)|#[a-f0-9]{3,8})/gi;
 
@@ -44,7 +115,11 @@ function extractColorsFromStyles(styles: string[]): Color[] | null {
       if (isValidColor(value)) {
         const normalizedName = normalizeColorName(name.trim());
         if (!colors.has(normalizedName)) {
-          colors.set(normalizedName, value.trim());
+          try {
+            colors.set(normalizedName, parseColor(value.trim()));
+          } catch (e) {
+            console.warn('Failed to parse color:', value);
+          }
         }
       }
     }
@@ -61,7 +136,11 @@ function extractColorsFromStyles(styles: string[]): Color[] | null {
         if (isValidColor(value)) {
           const normalizedName = normalizeColorName(name.trim());
           if (!colors.has(normalizedName)) {
-            colors.set(normalizedName, value.trim());
+            try {
+              colors.set(normalizedName, parseColor(value.trim()));
+            } catch (e) {
+              console.warn('Failed to parse color:', value);
+            }
           }
         }
       }

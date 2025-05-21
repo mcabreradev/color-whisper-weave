@@ -5,7 +5,12 @@ import { useToast } from "@/hooks/use-toast";
 
 export interface Color {
   name: string;
-  value: string;
+  value: {
+    hex: string;
+    rgb: string;
+    hsl: string;
+    oklch: string;
+  };
 }
 
 export interface PaletteData {
