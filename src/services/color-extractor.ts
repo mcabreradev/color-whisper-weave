@@ -32,7 +32,7 @@ function normalizeColorName(name: string): string {
   }
 }
 
-function extractColorsFromStyles(styles: string[]): Color[] {
+function extractColorsFromStyles(styles: string[]): Color[] | null {
   const colors = new Map<string, string>();
   const cssVarRegex =
     /--([^:]+)\s*:\s*((?:hsl|rgb)a?\([^)]+\)|#[a-f0-9]{3,8})/gi;
@@ -68,38 +68,21 @@ function extractColorsFromStyles(styles: string[]): Color[] {
     }
   }
 
-  // Ensure we have all required colors
-  const requiredColors = [
-    "primary",
-    "secondary",
-    "accent",
-    "background",
-    "text",
-    "neutral",
-  ];
-  const result: Color[] = [];
+  // Convert the extracted colors to array format
+  const result: Color[] = Array.from(colors.entries()).map(([name, value]) => ({
+    name,
+    value
+  }));
 
-  // Default colors if not found
-  const defaultColors = new Map([
-    ["background", "#ffffff"],
-    ["text", "#000000"],
-    ["primary", "#3b82f6"],
-    ["secondary", "#6b7280"],
-    ["accent", "#f59e0b"],
-    ["neutral", "#9ca3af"],
-  ]);
-
-  for (const name of requiredColors) {
-    result.push({
-      name,
-      value: colors.get(name) || defaultColors.get(name)!,
-    });
+  // If we didn't find any colors, return null
+  if (result.length === 0) {
+    return null;
   }
 
   return result;
 }
 
-export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
+export async function extractColorsFromUrl(url: string): Promise<PaletteData | null> {
   try {
     const response = await fetch(url, {
       mode: "cors",
@@ -140,6 +123,11 @@ export async function extractColorsFromUrl(url: string): Promise<PaletteData> {
 
     // Extract colors from all collected styles
     const colors = extractColorsFromStyles(styleSheets);
+
+    // If no colors were found, return null
+    if (!colors) {
+      return null;
+    }
 
     return {
       url,
