@@ -77,30 +77,47 @@ function isValidColor(color: string): boolean {
   return s.color !== "";
 }
 
-function normalizeColorName(name: string): string {
-  // Remove -- prefix and -foreground suffix
-  const baseName = name.replace(/^--/, "").replace(/-foreground$/, "");
+const ALLOWED_VARIABLES = new Set([
+  'radius',
+  'background',
+  'foreground',
+  'card',
+  'card-foreground',
+  'popover',
+  'popover-foreground',
+  'primary',
+  'primary-foreground',
+  'secondary',
+  'secondary-foreground',
+  'muted',
+  'muted-foreground',
+  'accent',
+  'accent-foreground',
+  'destructive',
+  'border',
+  'input',
+  'ring',
+  'chart-1',
+  'chart-2',
+  'chart-3',
+  'chart-4',
+  'chart-5',
+  'sidebar',
+  'sidebar-foreground',
+  'sidebar-primary',
+  'sidebar-primary-foreground',
+  'sidebar-accent',
+  'sidebar-accent-foreground',
+  'sidebar-border',
+  'sidebar-ring'
+]);
 
-  // Map shadcn/ui variables to our color names
-  switch (baseName) {
-    case "primary":
-    case "secondary":
-    case "accent":
-      return baseName;
-    case "background":
-    case "card":
-    case "popover":
-      return "background";
-    case "foreground":
-      return "text";
-    case "muted":
-    case "border":
-    case "input":
-    case "ring":
-      return "neutral";
-    default:
-      return baseName;
-  }
+function normalizeColorName(name: string): string | null {
+  // Remove -- prefix
+  const baseName = name.replace(/^--/, "");
+
+  // Only return the name if it's in our allowed list
+  return ALLOWED_VARIABLES.has(baseName) ? baseName : null;
 }
 
 function extractColorsFromStyles(styles: string[]): Color[] | null {
@@ -114,7 +131,7 @@ function extractColorsFromStyles(styles: string[]): Color[] | null {
       const [, name, value] = match;
       if (isValidColor(value)) {
         const normalizedName = normalizeColorName(name.trim());
-        if (!colors.has(normalizedName)) {
+        if (normalizedName && !colors.has(normalizedName)) {
           try {
             colors.set(normalizedName, parseColor(value.trim()));
           } catch (e) {
@@ -135,7 +152,7 @@ function extractColorsFromStyles(styles: string[]): Color[] | null {
         const [, name, value] = match;
         if (isValidColor(value)) {
           const normalizedName = normalizeColorName(name.trim());
-          if (!colors.has(normalizedName)) {
+          if (normalizedName && !colors.has(normalizedName)) {
             try {
               colors.set(normalizedName, parseColor(value.trim()));
             } catch (e) {
@@ -162,6 +179,11 @@ function extractColorsFromStyles(styles: string[]): Color[] | null {
 }
 
 export async function extractColorsFromUrl(url: string): Promise<PaletteData | null> {
+  if (!url) {
+    console.error("No URL provided");
+    return null;
+  }
+
   try {
     const response = await fetch(url, {
       mode: "cors",
@@ -215,6 +237,9 @@ export async function extractColorsFromUrl(url: string): Promise<PaletteData | n
     };
   } catch (e) {
     console.error("Failed to extract colors:", e);
-    throw new Error("Failed to extract colors from URL");
+    if (e instanceof Error && e.message.includes('CORS')) {
+      throw new Error("Cannot access this website due to CORS restrictions. Try a different URL or a website that allows external access.");
+    }
+    throw new Error("Failed to extract colors from URL. Please check if the URL is valid and accessible.");
   }
 }

@@ -17,6 +17,15 @@ const Index = () => {
     setIsLoading(true);
     try {
       const extractedPalette = await extractColorsFromUrl(url);
+      if (!extractedPalette) {
+        toast({
+          title: "No colors found",
+          description: "Could not find any matching color variables in this URL.",
+          variant: "destructive",
+        });
+        setPalette(null);
+        return;
+      }
       setPalette(extractedPalette);
       toast({
         title: "Extraction complete!",
